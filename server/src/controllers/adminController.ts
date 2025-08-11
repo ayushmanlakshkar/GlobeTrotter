@@ -64,10 +64,21 @@ export const getUserStats = async (req: Request, res: Response, next: NextFuncti
 // Get popular cities (by number of trips)
 export const getPopularCities = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Count number of trips per city via TripStop
+    const { City, TripStop } = require('../models');
     const cities = await City.findAll({
-      attributes: ['id', 'name'],
-      include: [{ model: Trip, attributes: [] }],
-      order: [[Trip, 'id', 'DESC']],
+      attributes: [
+        'id',
+        'name',
+        [City.sequelize.fn('COUNT', City.sequelize.col('tripStops.id')), 'tripCount']
+      ],
+      include: [{
+        model: TripStop,
+        as: 'tripStops',
+        attributes: []
+      }],
+      group: ['City.id'],
+      order: [[City.sequelize.literal('tripCount'), 'DESC']],
       limit: 10
     });
     res.json(cities);
@@ -79,10 +90,21 @@ export const getPopularCities = async (req: Request, res: Response, next: NextFu
 // Get popular activities (by number of times added to trips)
 export const getPopularActivities = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Count number of trip activities per activity
+    const { Activity, TripActivity } = require('../models');
     const activities = await Activity.findAll({
-      attributes: ['id', 'name'],
-      include: [{ model: TripActivity, attributes: [] }],
-      order: [[TripActivity, 'id', 'DESC']],
+      attributes: [
+        'id',
+        'name',
+        [Activity.sequelize.fn('COUNT', Activity.sequelize.col('tripActivities.id')), 'usageCount']
+      ],
+      include: [{
+        model: TripActivity,
+        as: 'tripActivities',
+        attributes: []
+      }],
+      group: ['Activity.id'],
+      order: [[Activity.sequelize.literal('usageCount'), 'DESC']],
       limit: 10
     });
     res.json(activities);
@@ -94,14 +116,15 @@ export const getPopularActivities = async (req: Request, res: Response, next: Ne
 // Get user trends and analytics (example: trips per month)
 export const getUserTrends = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Example: count trips per month
+    // Count trips per month using correct column name 'created_at'
+    const { Trip } = require('../models');
     const trends = await Trip.findAll({
       attributes: [
-        [User.sequelize!.fn('DATE_TRUNC', 'month', User.sequelize!.col('createdAt')), 'month'],
-        [User.sequelize!.fn('COUNT', '*'), 'tripCount']
+        [Trip.sequelize.fn('DATE_TRUNC', 'month', Trip.sequelize.col('created_at')), 'month'],
+        [Trip.sequelize.fn('COUNT', '*'), 'tripCount']
       ],
       group: ['month'],
-      order: [['month', 'DESC']]
+      order: [[Trip.sequelize.literal('month'), 'DESC']]
     });
     res.json(trends);
   } catch (err) {
