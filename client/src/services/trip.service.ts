@@ -10,6 +10,7 @@ export interface Trip {
   start_date: string;
   end_date: string;
   image_url?: string;
+  cover_photo?: string;
   created_at: string;
   updated_at: string;
   user_id: string;
@@ -51,11 +52,19 @@ const getTripDetails = async (tripId: string) => {
   return response.data;
 };
 
+export const getTripById = async (tripId: string) => {
+  const response = await axios.get(`${API_URL}/trips/${tripId}`, {
+    headers: authHeader(),
+  });
+  return response.data;
+};
+
 const tripService = {
   getRegionalSelections,
   getPreviousTrips,
   getUpcomingTrips,
   getTripDetails,
+  getTripById,
 };
 
 
