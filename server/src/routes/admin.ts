@@ -1,10 +1,11 @@
 import express from 'express';
 import { getAllUsers, getUserById, updateUser, deleteUser, getUserStats, getPopularCities, getPopularActivities, getUserTrends } from '../controllers/adminController';
-import { authorizeAdmin } from '../middleware/auth';
+import { authenticateToken, authorizeAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
-// All routes below require admin authentication
+// All routes below require authentication and admin authorization
+router.use(authenticateToken);
 router.use(authorizeAdmin);
 
 // User management
