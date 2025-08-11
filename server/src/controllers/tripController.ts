@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { Op } from 'sequelize';
 import { Trip, User, TripStop, TripActivity, City, Activity } from '../models';
 import { AuthenticatedRequest, TripWithDetails } from '../types/trip';
+import { CalendarTrip, MonthlyTripOverview, YearlyTripSummary } from '../types/calendar';
 import { TripUtils } from '../utils/tripUtils';
 
 export class TripController {
@@ -62,6 +63,350 @@ export class TripController {
       console.error('Error fetching top regional selections:', error);
       res.status(500).json({ 
         error: 'Failed to fetch top regional selections',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Get trips in calendar format for a specific month/year
+   * Returns trips organized by dates for calendar display
+   */
+  static async getTripsCalendar(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+      }
+
+      const { year, month } = req.query;
+      
+      if (!year || !month) {
+        res.status(400).json({ error: 'Year and month are required parameters' });
+        return;
+      }
+
+      const targetYear = parseInt(year as string);
+      const targetMonth = parseInt(month as string);
+
+      // Validate month (1-12)
+      if (targetMonth < 1 || targetMonth > 12) {
+        res.status(400).json({ error: 'Month must be between 1 and 12' });
+        return;
+      }
+
+      // Get first and last day of the month
+      const startOfMonth = new Date(targetYear, targetMonth - 1, 1);
+      const endOfMonth = new Date(targetYear, targetMonth, 0);
+
+      // Find trips that overlap with the target month
+      const trips = await Trip.findAll({
+        where: {
+          user_id: userId,
+          [Op.or]: [
+            // Trip starts within the month
+            {
+              start_date: {
+                [Op.between]: [startOfMonth, endOfMonth]
+              }
+            },
+            // Trip ends within the month
+            {
+              end_date: {
+                [Op.between]: [startOfMonth, endOfMonth]
+              }
+            },
+            // Trip spans the entire month
+            {
+              [Op.and]: [
+                { start_date: { [Op.lte]: startOfMonth } },
+                { end_date: { [Op.gte]: endOfMonth } }
+              ]
+            }
+          ]
+        },
+        include: [
+          {
+            model: TripStop,
+            as: 'tripStops',
+            include: [
+              {
+                model: City,
+                as: 'city',
+                attributes: ['name', 'country']
+              }
+            ],
+            order: [['order_index', 'ASC']]
+          }
+        ],
+        order: [['start_date', 'ASC']]
+      });
+
+      // Format trips for calendar display
+      const calendarTrips = trips.map(trip => {
+        const tripWithStops = trip as any; // Cast to any to access included associations
+        return {
+          id: trip.id,
+          name: trip.name,
+          description: trip.description,
+          start_date: trip.start_date,
+          end_date: trip.end_date,
+          cover_photo: trip.cover_photo,
+          is_public: trip.is_public,
+          duration_days: Math.ceil((trip.end_date.getTime() - trip.start_date.getTime()) / (1000 * 60 * 60 * 24)) + 1,
+          destinations: tripWithStops.tripStops?.map((stop: any) => stop.city?.name).filter(Boolean).join(', ') || 'No destinations'
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          trips: calendarTrips,
+          month: targetMonth,
+          year: targetYear,
+          total: calendarTrips.length
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching calendar trips:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch calendar trips',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Get trips for a specific date range (for calendar week/day views)
+   */
+  static async getTripsByDateRange(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+      }
+
+      const { start_date, end_date } = req.query;
+      
+      if (!start_date || !end_date) {
+        res.status(400).json({ error: 'Start date and end date are required parameters' });
+        return;
+      }
+
+      const startDate = new Date(start_date as string);
+      const endDate = new Date(end_date as string);
+
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        res.status(400).json({ error: 'Invalid date format' });
+        return;
+      }
+
+      if (startDate > endDate) {
+        res.status(400).json({ error: 'Start date cannot be after end date' });
+        return;
+      }
+
+      // Find trips that overlap with the date range
+      const trips = await Trip.findAll({
+        where: {
+          user_id: userId,
+          [Op.or]: [
+            // Trip starts within the range
+            {
+              start_date: {
+                [Op.between]: [startDate, endDate]
+              }
+            },
+            // Trip ends within the range
+            {
+              end_date: {
+                [Op.between]: [startDate, endDate]
+              }
+            },
+            // Trip spans the entire range
+            {
+              [Op.and]: [
+                { start_date: { [Op.lte]: startDate } },
+                { end_date: { [Op.gte]: endDate } }
+              ]
+            }
+          ]
+        },
+        include: [
+          {
+            model: TripStop,
+            as: 'tripStops',
+            include: [
+              {
+                model: City,
+                as: 'city',
+                attributes: ['name', 'country']
+              },
+              {
+                model: TripActivity,
+                as: 'tripActivities',
+                include: [
+                  {
+                    model: Activity,
+                    as: 'activity',
+                    attributes: ['name', 'category', 'duration']
+                  }
+                ]
+              }
+            ],
+            order: [['order_index', 'ASC']]
+          }
+        ],
+        order: [['start_date', 'ASC']]
+      });
+
+      // Format trips with detailed information
+      const detailedTrips = trips.map(trip => {
+        const tripData = trip.toJSON() as TripWithDetails;
+        return {
+          ...tripData,
+          duration_days: Math.ceil((trip.end_date.getTime() - trip.start_date.getTime()) / (1000 * 60 * 60 * 24)) + 1,
+          metrics: TripUtils.calculateTripMetrics(tripData, userId)
+        };
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          trips: detailedTrips,
+          date_range: {
+            start: startDate,
+            end: endDate
+          },
+          total: detailedTrips.length
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching trips by date range:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch trips by date range',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Get trip overview for calendar year view
+   * Returns monthly summaries of trips for the entire year
+   */
+  static async getYearlyTripOverview(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+      }
+
+      const { year } = req.query;
+      
+      if (!year) {
+        res.status(400).json({ error: 'Year is required parameter' });
+        return;
+      }
+
+      const targetYear = parseInt(year as string);
+      const startOfYear = new Date(targetYear, 0, 1);
+      const endOfYear = new Date(targetYear, 11, 31);
+
+      // Get all trips for the year
+      const trips = await Trip.findAll({
+        where: {
+          user_id: userId,
+          [Op.or]: [
+            {
+              start_date: {
+                [Op.between]: [startOfYear, endOfYear]
+              }
+            },
+            {
+              end_date: {
+                [Op.between]: [startOfYear, endOfYear]
+              }
+            },
+            {
+              [Op.and]: [
+                { start_date: { [Op.lte]: startOfYear } },
+                { end_date: { [Op.gte]: endOfYear } }
+              ]
+            }
+          ]
+        },
+        include: [
+          {
+            model: TripStop,
+            as: 'tripStops',
+            include: [
+              {
+                model: City,
+                as: 'city',
+                attributes: ['name', 'country']
+              }
+            ]
+          }
+        ],
+        order: [['start_date', 'ASC']]
+      });
+
+      // Group trips by month
+      const monthlyOverview = Array.from({ length: 12 }, (_, index) => {
+        const month = index + 1;
+        const monthStart = new Date(targetYear, index, 1);
+        const monthEnd = new Date(targetYear, index + 1, 0);
+
+        const monthTrips = trips.filter(trip => {
+          return (trip.start_date <= monthEnd && trip.end_date >= monthStart);
+        });
+
+        return {
+          month,
+          month_name: monthStart.toLocaleString('default', { month: 'long' }),
+          trip_count: monthTrips.length,
+          trips: monthTrips.map(trip => {
+            const tripWithStops = trip as any; // Cast to any to access included associations
+            return {
+              id: trip.id,
+              name: trip.name,
+              start_date: trip.start_date,
+              end_date: trip.end_date,
+              destinations: tripWithStops.tripStops?.map((stop: any) => stop.city?.name).filter(Boolean).join(', ') || 'No destinations'
+            };
+          })
+        };
+      });
+
+      const totalTrips = trips.length;
+      const totalDays = trips.reduce((sum, trip) => {
+        return sum + Math.ceil((trip.end_date.getTime() - trip.start_date.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+      }, 0);
+
+      res.status(200).json({
+        success: true,
+        data: {
+          year: targetYear,
+          monthly_overview: monthlyOverview,
+          yearly_summary: {
+            total_trips: totalTrips,
+            total_travel_days: totalDays,
+            busiest_month: monthlyOverview.reduce((max, month) => 
+              month.trip_count > max.trip_count ? month : max, monthlyOverview[0]
+            )
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching yearly trip overview:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch yearly trip overview',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }

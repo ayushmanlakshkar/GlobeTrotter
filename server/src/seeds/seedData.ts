@@ -27,7 +27,8 @@ const seedUsers = async () => {
       country: 'United States',
       password_hash: await hashPassword('password123'),
       avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-      additional_info: 'Love exploring new cultures and trying local cuisines.'
+      additional_info: 'Love exploring new cultures and trying local cuisines.',
+      role: 'admin' 
     },
     {
       first_name: 'Jane',
@@ -39,7 +40,8 @@ const seedUsers = async () => {
       country: 'United States',
       password_hash: await hashPassword('password123'),
       avatar_url: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=150',
-      additional_info: 'Adventure seeker and photography enthusiast.'
+      additional_info: 'Adventure seeker and photography enthusiast.',
+      role: 'user' 
     },
     {
       first_name: 'Michael',
@@ -51,7 +53,8 @@ const seedUsers = async () => {
       country: 'United States',
       password_hash: await hashPassword('password123'),
       avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-      additional_info: 'Travel blogger and nature lover.'
+      additional_info: 'Travel blogger and nature lover.',
+      role: 'user' 
     },
     {
       first_name: 'Emily',
@@ -63,7 +66,8 @@ const seedUsers = async () => {
       country: 'Canada',
       password_hash: await hashPassword('password123'),
       avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150',
-      additional_info: 'Digital nomad passionate about sustainable travel.'
+      additional_info: 'Digital nomad passionate about sustainable travel.',
+      role: 'user' 
     },
     {
       first_name: 'David',
@@ -75,12 +79,36 @@ const seedUsers = async () => {
       country: 'United Kingdom',
       password_hash: await hashPassword('password123'),
       avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
-      additional_info: 'History buff who enjoys exploring ancient sites.'
+      additional_info: 'History buff who enjoys exploring ancient sites.',
+      role: 'user' 
     }
   ];
 
   console.log('Seeding users...');
-  return await User.bulkCreate(users);
+  const createdUsers = [];
+  
+  for (const userData of users) {
+    try {
+      const [user, created] = await User.findOrCreate({
+        where: { 
+          username: userData.username 
+        },
+        defaults: userData
+      });
+      
+      if (created) {
+        console.log(`✓ Created user: ${userData.username}`);
+      } else {
+        console.log(`- User already exists: ${userData.username}`);
+      }
+      
+      createdUsers.push(user);
+    } catch (error) {
+      console.error(`✗ Error creating user ${userData.username}:`, error);
+    }
+  }
+  
+  return createdUsers;
 };
 
 const seedCities = async () => {
@@ -152,7 +180,31 @@ const seedCities = async () => {
   ];
 
   console.log('Seeding cities...');
-  return await City.bulkCreate(cities);
+  const createdCities = [];
+  
+  for (const cityData of cities) {
+    try {
+      const [city, created] = await City.findOrCreate({
+        where: { 
+          name: cityData.name,
+          country: cityData.country 
+        },
+        defaults: cityData
+      });
+      
+      if (created) {
+        console.log(`✓ Created city: ${cityData.name}, ${cityData.country}`);
+      } else {
+        console.log(`- City already exists: ${cityData.name}, ${cityData.country}`);
+      }
+      
+      createdCities.push(city);
+    } catch (error) {
+      console.error(`✗ Error creating city ${cityData.name}:`, error);
+    }
+  }
+  
+  return createdCities;
 };
 
 const seedActivities = async (cities: City[]) => {
@@ -244,7 +296,31 @@ const seedActivities = async (cities: City[]) => {
   ];
 
   console.log('Seeding activities...');
-  return await Activity.bulkCreate(activities);
+  const createdActivities = [];
+  
+  for (const activityData of activities) {
+    try {
+      const [activity, created] = await Activity.findOrCreate({
+        where: { 
+          name: activityData.name,
+          city_id: activityData.city_id 
+        },
+        defaults: activityData
+      });
+      
+      if (created) {
+        console.log(`✓ Created activity: ${activityData.name}`);
+      } else {
+        console.log(`- Activity already exists: ${activityData.name}`);
+      }
+      
+      createdActivities.push(activity);
+    } catch (error) {
+      console.error(`✗ Error creating activity ${activityData.name}:`, error);
+    }
+  }
+  
+  return createdActivities;
 };
 
 const seedTrips = async (users: User[]) => {
@@ -293,11 +369,81 @@ const seedTrips = async (users: User[]) => {
       end_date: new Date('2024-08-21'),
       cover_photo: 'https://images.unsplash.com/photo-1539650116574-75c0c6d73c6e?w=800',
       is_public: true
+    },
+    // Add calendar-specific trips that match the image dates
+    {
+      user_id: users[0].id,
+      name: 'PARIS TRIP',
+      description: 'Romantic getaway to the City of Light',
+      start_date: new Date('2024-01-04'),
+      end_date: new Date('2024-01-05'),
+      cover_photo: 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=800',
+      is_public: true
+    },
+    {
+      user_id: users[0].id,
+      name: 'PARIS 10',
+      description: 'Extended Paris exploration',
+      start_date: new Date('2024-01-09'),
+      end_date: new Date('2024-01-10'),
+      cover_photo: 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=800',
+      is_public: true
+    },
+    {
+      user_id: users[0].id,
+      name: 'NYC - GETAWAY',
+      description: 'Big Apple adventure',
+      start_date: new Date('2024-01-15'),
+      end_date: new Date('2024-01-22'),
+      cover_photo: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800',
+      is_public: true
+    },
+    {
+      user_id: users[0].id,
+      name: 'JAPAN ADVENTURE',
+      description: 'Discover the wonders of Japan',
+      start_date: new Date('2024-01-16'),
+      end_date: new Date('2024-01-17'),
+      cover_photo: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800',
+      is_public: true
+    },
+    {
+      user_id: users[0].id,
+      name: 'NYC GETAWAY',
+      description: 'Another NYC trip',
+      start_date: new Date('2024-01-28'),
+      end_date: new Date('2024-01-28'),
+      cover_photo: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800',
+      is_public: true
     }
   ];
 
   console.log('Seeding trips...');
-  return await Trip.bulkCreate(trips);
+  const createdTrips = [];
+  
+  for (const tripData of trips) {
+    try {
+      const [trip, created] = await Trip.findOrCreate({
+        where: { 
+          name: tripData.name,
+          user_id: tripData.user_id 
+        },
+        defaults: tripData
+      });
+      
+      if (created) {
+        console.log(`✓ Created trip: ${tripData.name}`);
+      } else {
+        console.log(`- Trip already exists: ${tripData.name}`);
+      }
+      
+      createdTrips.push(trip);
+    } catch (error) {
+      console.error(`✗ Error creating trip ${tripData.name}:`, error);
+    }
+  }
+  
+  return createdTrips;
 };
 
 const seedTripStops = async (trips: Trip[], cities: City[]) => {
@@ -350,7 +496,32 @@ const seedTripStops = async (trips: Trip[], cities: City[]) => {
   ];
 
   console.log('Seeding trip stops...');
-  return await TripStop.bulkCreate(tripStops);
+  const createdTripStops = [];
+  
+  for (const tripStopData of tripStops) {
+    try {
+      const [tripStop, created] = await TripStop.findOrCreate({
+        where: { 
+          trip_id: tripStopData.trip_id,
+          city_id: tripStopData.city_id,
+          order_index: tripStopData.order_index
+        },
+        defaults: tripStopData
+      });
+      
+      if (created) {
+        console.log(`✓ Created trip stop`);
+      } else {
+        console.log(`- Trip stop already exists`);
+      }
+      
+      createdTripStops.push(tripStop);
+    } catch (error) {
+      console.error(`✗ Error creating trip stop:`, error);
+    }
+  }
+  
+  return createdTripStops;
 };
 
 const seedTripActivities = async (tripStops: TripStop[], activities: Activity[]) => {
@@ -397,7 +568,31 @@ const seedTripActivities = async (tripStops: TripStop[], activities: Activity[])
   ];
 
   console.log('Seeding trip activities...');
-  return await TripActivity.bulkCreate(tripActivities);
+  const createdTripActivities = [];
+  
+  for (const tripActivityData of tripActivities) {
+    try {
+      const [tripActivity, created] = await TripActivity.findOrCreate({
+        where: { 
+          trip_stop_id: tripActivityData.trip_stop_id,
+          activity_id: tripActivityData.activity_id
+        },
+        defaults: tripActivityData
+      });
+      
+      if (created) {
+        console.log(`✓ Created trip activity`);
+      } else {
+        console.log(`- Trip activity already exists`);
+      }
+      
+      createdTripActivities.push(tripActivity);
+    } catch (error) {
+      console.error(`✗ Error creating trip activity:`, error);
+    }
+  }
+  
+  return createdTripActivities;
 };
 
 const seedDatabase = async () => {
