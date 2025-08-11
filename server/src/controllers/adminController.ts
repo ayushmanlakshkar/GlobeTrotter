@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import {User} from '../models/User';
-import {Trip} from '../models/Trip';
-import {Activity} from '../models/Activity';
-import {City} from '../models/City';
-import {TripActivity} from '../models/TripActivity';
+import { User } from '../models/User';
+import { Trip } from '../models/Trip';
+import { Activity } from '../models/Activity';
+import { City } from '../models/City';
+import { TripActivity } from '../models/TripActivity';
+import { TripStop } from '../models/TripStop';
+import sequelize from '../config/database';
 
 // Get all users
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
@@ -65,12 +67,11 @@ export const getUserStats = async (req: Request, res: Response, next: NextFuncti
 export const getPopularCities = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Count number of trips per city via TripStop
-    const { City, TripStop } = require('../models');
     const cities = await City.findAll({
       attributes: [
         'id',
         'name',
-        [City.sequelize.fn('COUNT', City.sequelize.col('tripStops.id')), 'tripCount']
+        [sequelize.fn('COUNT', sequelize.col('tripStops.id')), 'tripCount']
       ],
       include: [{
         model: TripStop,
@@ -78,7 +79,7 @@ export const getPopularCities = async (req: Request, res: Response, next: NextFu
         attributes: []
       }],
       group: ['City.id'],
-      order: [[City.sequelize.literal('tripCount'), 'DESC']],
+      order: [[sequelize.literal('tripCount'), 'DESC']],
       limit: 10
     });
     res.json(cities);
@@ -91,12 +92,11 @@ export const getPopularCities = async (req: Request, res: Response, next: NextFu
 export const getPopularActivities = async (req: Request, res: Response, next: NextFunction) => {
   try {
     // Count number of trip activities per activity
-    const { Activity, TripActivity } = require('../models');
     const activities = await Activity.findAll({
       attributes: [
         'id',
         'name',
-        [Activity.sequelize.fn('COUNT', Activity.sequelize.col('tripActivities.id')), 'usageCount']
+        [sequelize.fn('COUNT', sequelize.col('tripActivities.id')), 'usageCount']
       ],
       include: [{
         model: TripActivity,
@@ -104,7 +104,7 @@ export const getPopularActivities = async (req: Request, res: Response, next: Ne
         attributes: []
       }],
       group: ['Activity.id'],
-      order: [[Activity.sequelize.literal('usageCount'), 'DESC']],
+      order: [[sequelize.literal('usageCount'), 'DESC']],
       limit: 10
     });
     res.json(activities);
