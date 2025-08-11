@@ -419,4 +419,177 @@ export class LocationController {
       });
     }
   }
+
+  /**
+   * Get all activities with search and filtering
+   */
+  static async getActivities(req: Request, res: Response): Promise<void> {
+    try {
+      const { 
+        search,
+        category, 
+        min_cost, 
+        max_cost, 
+        cityId,
+        limit = 50,
+        page = 1,
+        sortBy = 'name',
+        sortOrder = 'ASC'
+      } = req.query;
+
+      const offset = (Number(page) - 1) * Number(limit);
+      
+      // Build query conditions
+      let whereClause: any = {};
+      
+      // Add search filter if provided
+      if (search) {
+        whereClause[Op.or] = [
+          { name: { [Op.iLike]: `%${search}%` } },
+          { description: { [Op.iLike]: `%${search}%` } }
+        ];
+      }
+
+      // Add city filter if provided
+      if (cityId) {
+        whereClause.city_id = cityId;
+      }
+      
+      // Add category filter if provided
+      if (category) {
+        whereClause.category = category;
+      }
+
+      // Add cost range filter if provided
+      if (min_cost || max_cost) {
+        const minCost = min_cost ? parseFloat(min_cost as string) : 0;
+        const maxCost = max_cost ? parseFloat(max_cost as string) : Number.MAX_SAFE_INTEGER;
+        
+        whereClause = {
+          ...whereClause,
+          [Op.and]: [
+            {
+              [Op.or]: [
+                { min_cost: null },
+                { min_cost: { [Op.lte]: maxCost } }
+              ]
+            },
+            {
+              [Op.or]: [
+                { max_cost: null },
+                { max_cost: { [Op.gte]: minCost } }
+              ]
+            }
+          ]
+        };
+      }
+
+      // Validate sort parameters
+      const validSortFields = ['name', 'category', 'min_cost', 'max_cost', 'duration', 'created_at'];
+      const validSortOrders = ['ASC', 'DESC'];
+      
+      const finalSortBy = validSortFields.includes(sortBy as string) ? sortBy as string : 'name';
+      const finalSortOrder = validSortOrders.includes((sortOrder as string).toUpperCase()) 
+        ? (sortOrder as string).toUpperCase() 
+        : 'ASC';
+
+      // Get activities with pagination
+      const activities = await Activity.findAndCountAll({
+        where: whereClause,
+        limit: Number(limit),
+        offset: offset,
+        order: [[finalSortBy, finalSortOrder]],
+        include: [
+          {
+            model: City,
+            as: 'city',
+            attributes: ['id', 'name', 'country']
+          }
+        ]
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          activities: activities.rows,
+          pagination: {
+            page: Number(page),
+            limit: Number(limit),
+            total: activities.count,
+            totalPages: Math.ceil(activities.count / Number(limit))
+          },
+          filters: {
+            search: search || null,
+            category: category || null,
+            min_cost: min_cost || null,
+            max_cost: max_cost || null,
+            city_id: cityId || null,
+            limit: Number(limit)
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch activities',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Search activities across all cities
+   */
+  static async searchActivities(req: Request, res: Response): Promise<void> {
+    try {
+      const { q: searchTerm, limit = 20, category } = req.query;
+      
+      if (!searchTerm || typeof searchTerm !== 'string') {
+        res.status(400).json({
+          error: 'Search term is required'
+        });
+        return;
+      }
+
+      let whereClause: any = {
+        [Op.or]: [
+          { name: { [Op.iLike]: `%${searchTerm}%` } },
+          { description: { [Op.iLike]: `%${searchTerm}%` } }
+        ]
+      };
+
+      // Add category filter if provided
+      if (category) {
+        whereClause.category = category;
+      }
+
+      const activities = await Activity.findAll({
+        where: whereClause,
+        order: [['name', 'ASC']],
+        limit: Number(limit),
+        include: [
+          {
+            model: City,
+            as: 'city',
+            attributes: ['id', 'name', 'country']
+          }
+        ]
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          query: searchTerm,
+          activities,
+          total: activities.length
+        }
+      });
+    } catch (error) {
+      console.error('Error searching activities:', error);
+      res.status(500).json({ 
+        error: 'Failed to search activities',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
 }

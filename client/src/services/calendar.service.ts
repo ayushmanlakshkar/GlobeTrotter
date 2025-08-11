@@ -9,8 +9,9 @@ export interface CalendarTrip {
   end_date: string;
   cover_photo?: string;
   is_public: boolean;
-  duration_days: number;
-  destinations: string;
+  duration_days?: number;
+  destinations?: string;
+  status?: 'planning' | 'confirmed' | 'completed' | 'cancelled';
 }
 
 export interface CalendarResponse {
@@ -19,6 +20,44 @@ export interface CalendarResponse {
     trips: CalendarTrip[];
     month?: number;
     year?: number;
+    total: number;
+  };
+}
+
+export interface MonthlyOverview {
+  month: number;
+  month_name: string;
+  trip_count: number;
+  trips: Array<{
+    id: string;
+    name: string;
+    start_date: string;
+    end_date: string;
+    destinations: string;
+  }>;
+}
+
+export interface YearlyOverviewResponse {
+  success: boolean;
+  data: {
+    year: number;
+    monthly_overview: MonthlyOverview[];
+    yearly_summary: {
+      total_trips: number;
+      total_travel_days: number;
+      busiest_month: MonthlyOverview;
+    };
+  };
+}
+
+export interface DateRangeResponse {
+  success: boolean;
+  data: {
+    trips: CalendarTrip[];
+    date_range: {
+      start: string;
+      end: string;
+    };
     total: number;
   };
 }
@@ -54,7 +93,7 @@ export class CalendarService {
   /**
    * Get trips for a date range (useful for weekly or custom date views)
    */
-  async getTripsForDateRange(startDate: string, endDate: string): Promise<CalendarResponse> {
+  async getTripsForDateRange(startDate: string, endDate: string): Promise<DateRangeResponse> {
     const response = await this.fetchWithAuth(
       `${this.baseUrl}/trips/calendar/date-range?start_date=${startDate}&end_date=${endDate}`
     );
@@ -64,7 +103,7 @@ export class CalendarService {
   /**
    * Get yearly overview with monthly summaries
    */
-  async getYearlyOverview(year: number) {
+  async getYearlyOverview(year: number): Promise<YearlyOverviewResponse> {
     const response = await this.fetchWithAuth(
       `${this.baseUrl}/trips/calendar/year-overview?year=${year}`
     );
