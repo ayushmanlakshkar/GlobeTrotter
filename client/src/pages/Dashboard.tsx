@@ -84,6 +84,13 @@ const Dashboard: React.FC = () => {
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">GlobeTrotter</h1>
           </div>
           <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/calendar')}
+              className="text-blue-600 border-blue-600 hover:bg-blue-50"
+            >
+              Calendar
+            </Button>
             {currentUser?.user?.role === 'admin' && (
               <Button 
                 variant="outline" 
