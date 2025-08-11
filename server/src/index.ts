@@ -5,6 +5,7 @@ import { initDatabase } from './models';
 import authRoutes from './routes/auth';
 import tripRoutes from './routes/trips';
 import locationRoutes from './routes/locations';
+import adminRoutes from './routes/admin';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 // Load environment variables
@@ -22,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/locations', locationRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

@@ -104,8 +104,7 @@ export class Trip extends Model<TripAttributes, TripCreationAttributes> implemen
 
     return await Trip.findAll({
       where: {
-        user_id: userId,
-        end_date: { [Op.lt]: new Date() } // Only past trips
+        user_id: userId
       },
       include: [
         {

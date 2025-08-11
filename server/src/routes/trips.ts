@@ -13,6 +13,11 @@ router.get('/regional-selections', TripController.getTopRegionalSelections);
 router.get('/previous', TripController.getPreviousTrips);
 router.get('/upcoming', TripController.getUpcomingTrips);
 
+// Calendar view routes
+router.get('/calendar/month', TripController.getTripsCalendar);
+router.get('/calendar/date-range', TripController.getTripsByDateRange);
+router.get('/calendar/year-overview', TripController.getYearlyTripOverview);
+
 // Trip CRUD operations
 router.post('/', validateCreateTrip, TripController.createTrip);
 router.get('/:tripId', TripController.getTripById);
