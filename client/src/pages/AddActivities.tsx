@@ -92,42 +92,55 @@ const AddActivities: React.FC = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow">
-      <h2 className="text-2xl font-bold mb-4">Add Activities to Your Trip</h2>
-      {error && <div className="text-red-500 mb-2">{error}</div>}
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="max-w-4xl mx-auto p-8 bg-white/90 rounded-2xl shadow-lg mt-8">
+      <h2 className="text-3xl font-extrabold mb-6 text-center tracking-tight">Add Activities to Your Trip</h2>
+      {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
+      <form onSubmit={handleSubmit} className="space-y-8">
         {tripStops.map(stop => (
-          <div key={stop.id} className="border-b pb-4 mb-4">
-            <h3 className="font-semibold mb-2">{stop.city.name} ({stop.start_date} to {stop.end_date})</h3>
-            <div className="space-y-2">
-              {(activities[stop.id] || []).length === 0 ? (
-                <div className="text-gray-500">No activities found for this city.</div>
-              ) : (
-                activities[stop.id].map(activity => (
-                  <div key={activity.id} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={!!(selectedActivities[stop.id] || []).find(a => a.activity_id === activity.id)}
-                      onChange={e => handleSelectActivity(stop.id, activity.id, e.target.checked)}
-                    />
-                    <span className="font-medium">{activity.name}</span>
-                    <span className="text-xs text-gray-500">({activity.category})</span>
-                    <span className="text-xs text-gray-400">{activity.description}</span>
-                    { (selectedActivities[stop.id] || []).find(a => a.activity_id === activity.id) && (
-                      <div className="flex gap-1 ml-4">
-                        <input type="date" className="p-1 border rounded" placeholder="Date" value={(selectedActivities[stop.id] || []).find(a => a.activity_id === activity.id)?.date || ''} onChange={e => handleActivityDetailChange(stop.id, activity.id, 'date', e.target.value)} required />
-                        <input type="time" className="p-1 border rounded" placeholder="Time" value={(selectedActivities[stop.id] || []).find(a => a.activity_id === activity.id)?.time || ''} onChange={e => handleActivityDetailChange(stop.id, activity.id, 'time', e.target.value)} required />
-                        <input type="number" className="p-1 border rounded" placeholder="Min Cost" value={(selectedActivities[stop.id] || []).find(a => a.activity_id === activity.id)?.min_cost_override || ''} onChange={e => handleActivityDetailChange(stop.id, activity.id, 'min_cost_override', e.target.value)} min="0" />
-                        <input type="number" className="p-1 border rounded" placeholder="Max Cost" value={(selectedActivities[stop.id] || []).find(a => a.activity_id === activity.id)?.max_cost_override || ''} onChange={e => handleActivityDetailChange(stop.id, activity.id, 'max_cost_override', e.target.value)} min="0" />
+          <div key={stop.id} className="mb-8">
+            <div className="bg-gray-50 rounded-xl p-6 shadow-inner mb-2">
+              <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
+                <span className="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-bold">{stop.city.name}</span>
+                <span className="text-gray-500 text-sm">{stop.start_date} to {stop.end_date}</span>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(activities[stop.id] || []).length === 0 ? (
+                  <div className="text-gray-400 italic col-span-2">No activities found for this city.</div>
+                ) : (
+                  activities[stop.id].map(activity => {
+                    const selected = (selectedActivities[stop.id] || []).find(a => a.activity_id === activity.id);
+                    return (
+                      <div key={activity.id} className={`flex flex-col gap-2 p-4 rounded-lg border shadow-sm bg-white transition ${selected ? 'ring-2 ring-green-400' : ''}`}>
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            className="accent-green-600 w-5 h-5"
+                            checked={!!selected}
+                            onChange={e => handleSelectActivity(stop.id, activity.id, e.target.checked)}
+                          />
+                          <span className="font-medium text-lg">{activity.name}</span>
+                          <span className="text-xs text-gray-500">({activity.category})</span>
+                        </label>
+                        <span className="text-xs text-gray-400 mb-1">{activity.description}</span>
+                        {selected && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                            <input type="date" className="p-2 border rounded" placeholder="Date" value={selected.date || ''} onChange={e => handleActivityDetailChange(stop.id, activity.id, 'date', e.target.value)} required />
+                            <input type="time" className="p-2 border rounded" placeholder="Time" value={selected.time || ''} onChange={e => handleActivityDetailChange(stop.id, activity.id, 'time', e.target.value)} required />
+                            <input type="number" className="p-2 border rounded" placeholder="Min Cost" value={selected.min_cost_override || ''} onChange={e => handleActivityDetailChange(stop.id, activity.id, 'min_cost_override', e.target.value)} min="0" />
+                            <input type="number" className="p-2 border rounded" placeholder="Max Cost" value={selected.max_cost_override || ''} onChange={e => handleActivityDetailChange(stop.id, activity.id, 'max_cost_override', e.target.value)} min="0" />
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                ))
-              )}
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
         ))}
-        <button type="submit" className="w-full bg-green-600 text-white py-2 rounded" disabled={loading}>{loading ? 'Saving...' : 'Save Activities'}</button>
+        <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-lg font-semibold transition" disabled={loading}>
+          {loading ? 'Saving...' : 'Save Activities'}
+        </button>
       </form>
     </div>
   );
