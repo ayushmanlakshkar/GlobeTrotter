@@ -195,13 +195,12 @@ const Dashboard: React.FC = () => {
       </main>
 
       {/* Floating Action Button */}
-      <div className="fixed bottom-8 right-8">
+      <div className="fixed bottom-8 right-8 h-14">
         <Button 
           onClick={handleCreateTrip}
-          size="lg" 
-          className="rounded-full h-14 w-14 shadow-lg"
+          className="rounded-full h-14 w-auto shadow-lg"
         >
-          <Plus className="h-6 w-6" />
+          <Plus className="h-6 w-6" /> Plan A Trip
         </Button>
       </div>
     </div>
