@@ -1,11 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { User } from '../models/User';
-import { Trip } from '../models/Trip';
-import { Activity } from '../models/Activity';
-import { City } from '../models/City';
-import { TripActivity } from '../models/TripActivity';
-import { TripStop } from '../models/TripStop';
+import { User, Trip, Activity, City, TripActivity, TripStop } from '../models';
 import sequelize from '../config/database';
+import { QueryTypes } from 'sequelize';
 
 // Get all users
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
@@ -66,21 +62,20 @@ export const getUserStats = async (req: Request, res: Response, next: NextFuncti
 // Get popular cities (by number of trips)
 export const getPopularCities = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Count number of trips per city via TripStop
-    const cities = await City.findAll({
-      attributes: [
-        'id',
-        'name',
-        [sequelize.fn('COUNT', sequelize.col('tripStops.id')), 'tripCount']
-      ],
-      include: [{
-        model: TripStop,
-        as: 'tripStops',
-        attributes: []
-      }],
-      group: ['City.id'],
-      order: [[sequelize.literal('tripCount'), 'DESC']],
-      limit: 10
+    // Use raw SQL query to get cities with trip counts
+    const cities = await sequelize.query(`
+      SELECT 
+        c.id, 
+        c.name, 
+        c.country,
+        COUNT(ts.id) as "tripCount"
+      FROM cities c
+      LEFT JOIN trip_stops ts ON c.id = ts.city_id
+      GROUP BY c.id, c.name, c.country
+      ORDER BY "tripCount" DESC
+      LIMIT 10
+    `, {
+      type: QueryTypes.SELECT
     });
     res.json(cities);
   } catch (err) {
@@ -91,21 +86,20 @@ export const getPopularCities = async (req: Request, res: Response, next: NextFu
 // Get popular activities (by number of times added to trips)
 export const getPopularActivities = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Count number of trip activities per activity
-    const activities = await Activity.findAll({
-      attributes: [
-        'id',
-        'name',
-        [sequelize.fn('COUNT', sequelize.col('tripActivities.id')), 'usageCount']
-      ],
-      include: [{
-        model: TripActivity,
-        as: 'tripActivities',
-        attributes: []
-      }],
-      group: ['Activity.id'],
-      order: [[sequelize.literal('usageCount'), 'DESC']],
-      limit: 10
+    // Use raw SQL query to get activities with usage counts
+    const activities = await sequelize.query(`
+      SELECT 
+        a.id, 
+        a.name, 
+        a.category,
+        COUNT(ta.id) as "usageCount"
+      FROM activities a
+      LEFT JOIN trip_activities ta ON a.id = ta.activity_id
+      GROUP BY a.id, a.name, a.category
+      ORDER BY "usageCount" DESC
+      LIMIT 10
+    `, {
+      type: QueryTypes.SELECT
     });
     res.json(activities);
   } catch (err) {

@@ -18,6 +18,7 @@ const Dashboard: React.FC = () => {
   const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [groupBy, setGroupBy] = useState('date');
+  const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
   useEffect(() => {
     // Check if user is logged in
@@ -26,6 +27,8 @@ const Dashboard: React.FC = () => {
       navigate('/login');
       return;
     }
+
+    setCurrentUser(user);
 
     const fetchData = async () => {
       try {
@@ -81,6 +84,15 @@ const Dashboard: React.FC = () => {
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">GlobeTrotter</h1>
           </div>
           <div className="flex items-center gap-4">
+            {currentUser?.user?.role === 'admin' && (
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/admin')}
+                className="text-purple-600 border-purple-600 hover:bg-purple-50"
+              >
+                Admin Panel
+              </Button>
+            )}
             <Button variant="ghost" onClick={handleLogout} className="text-gray-600 hover:text-gray-900">Logout</Button>
           </div>
         </div>

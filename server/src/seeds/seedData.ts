@@ -369,6 +369,52 @@ const seedTrips = async (users: User[]) => {
       end_date: new Date('2024-08-21'),
       cover_photo: 'https://images.unsplash.com/photo-1539650116574-75c0c6d73c6e?w=800',
       is_public: true
+    },
+    // Add calendar-specific trips that match the image dates
+    {
+      user_id: users[0].id,
+      name: 'PARIS TRIP',
+      description: 'Romantic getaway to the City of Light',
+      start_date: new Date('2024-01-04'),
+      end_date: new Date('2024-01-05'),
+      cover_photo: 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=800',
+      is_public: true
+    },
+    {
+      user_id: users[0].id,
+      name: 'PARIS 10',
+      description: 'Extended Paris exploration',
+      start_date: new Date('2024-01-09'),
+      end_date: new Date('2024-01-10'),
+      cover_photo: 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=800',
+      is_public: true
+    },
+    {
+      user_id: users[0].id,
+      name: 'NYC - GETAWAY',
+      description: 'Big Apple adventure',
+      start_date: new Date('2024-01-15'),
+      end_date: new Date('2024-01-22'),
+      cover_photo: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800',
+      is_public: true
+    },
+    {
+      user_id: users[0].id,
+      name: 'JAPAN ADVENTURE',
+      description: 'Discover the wonders of Japan',
+      start_date: new Date('2024-01-16'),
+      end_date: new Date('2024-01-17'),
+      cover_photo: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800',
+      is_public: true
+    },
+    {
+      user_id: users[0].id,
+      name: 'NYC GETAWAY',
+      description: 'Another NYC trip',
+      start_date: new Date('2024-01-28'),
+      end_date: new Date('2024-01-28'),
+      cover_photo: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800',
+      is_public: true
     }
   ];
 

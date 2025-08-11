@@ -4,6 +4,7 @@ import Auth from './pages/Auth';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import CreateTrip from './pages/CreateTrip';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<Auth isSignUp={true} />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/trips/create" element={<CreateTrip />} />
         <Route path="/trips/:tripId" element={<div>Trip Details Page (Coming soon)</div>} />
                 <Route path="/trips/create" element={<CreateTrip />} />
