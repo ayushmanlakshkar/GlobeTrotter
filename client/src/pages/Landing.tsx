@@ -12,7 +12,20 @@ const Landing: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-white relative overflow-hidden">
-      <div className="flex justify-between items-center px-6 md:px-16 py-5 z-10 relative">
+      {/* Background element for top half only */}
+      <div 
+        className="absolute top-0 left-0 w-full h-5/6 z-0"
+        style={{
+          backgroundImage: 'url(https://media.cntraveller.com/photos/66dab99cca79963e5f03ff9d/4:3/w_4256,h_3192,c_limit/GettyImages-1588291549.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-white/70 to-white"></div>
+      </div>
+      
+      <div className="flex justify-between items-center px-6 md:px-16 py-5 z-20 relative">
         <div className="flex items-center">
           <div className="w-10 h-10 mr-3" dangerouslySetInnerHTML={{ __html: logoSvg }} />
           <h1 className="text-2xl font-bold text-primary">GlobeTrotter</h1>
@@ -33,7 +46,7 @@ const Landing: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col justify-center items-center px-5 py-10 z-10 relative">
+      <div className="flex-1 flex flex-col justify-center items-center px-5 py-10 z-20 relative">
         <div className="text-center max-w-3xl mb-16">
           <h1 className="text-5xl md:text-6xl font-bold text-primary mb-1">One travel app</h1>
           <h1 className="text-5xl md:text-6xl font-bold text-primary mb-5">to replace them all</h1>
@@ -81,7 +94,7 @@ const Landing: React.FC = () => {
         </div>
       </div>
       
-      <div className="absolute bottom-0 left-0 w-full z-1 opacity-30">
+      <div className="absolute bottom-0 left-0 w-full z-10 opacity-30">
         <div className="w-full" dangerouslySetInnerHTML={{ __html: travelPattern }} />
       </div>
     </div>

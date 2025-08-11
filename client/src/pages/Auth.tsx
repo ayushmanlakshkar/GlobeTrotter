@@ -105,7 +105,7 @@ const Auth: React.FC<AuthProps> = ({ isSignUp = false }) => {
           </p>
         </div>
         {/* Background pattern */}
-        <div className="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%22500%22%20height%3D%22500%22%20viewBox%3D%220%200%20500%20500%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M50%20100%20L100%2050%20L150%20100%20L200%2050%20L250%20100%20L300%2050%20L350%20100%20L400%2050%20L450%20100%22%20stroke%3D%22rgba(255%2C%20255%2C%20255%2C%200.1)%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M50%20200%20L100%20150%20L150%20200%20L200%20150%20L250%20200%20L300%20150%20L350%20200%20L400%20150%20L450%20200%22%20stroke%3D%22rgba(255%2C%20255%2C%20255%2C%200.1)%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M50%20300%20L100%20250%20L150%20300%20L200%20250%20L250%20300%20L300%20250%20L350%20300%20L400%20250%20L450%20300%22%20stroke%3D%22rgba(255%2C%20255%2C%20255%2C%200.1)%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M50%20400%20L100%20350%20L150%20400%20L200%20350%20L250%20400%20L300%20350%20L350%20400%20L400%20350%20L450%20400%22%20stroke%3D%22rgba(255%2C%20255%2C%20255%2C%200.1)%22%20stroke-width%3D%222%22%2F%3E%3C%2Fsvg%3E')] bg-[length:500px_500px]">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%22500%22%20height%3D%22500%22%20viewBox%3D%220%200%20500%20500%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M50%20100%20L100%2050%20L150%20100%20L200%2050%20L250%20100%20L300%2050%20L350%20100%20L400%2050%20L450%20100%22%20stroke%3D%22rgba(255%2C%20255%2C%20255%2C%200.1)%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M50%20200%20L100%20150%20L150%20200%20L200%20150%20L250%20200%20L300%20150%20L350%20200%20L400%20150%20L450%20200%22%20stroke%3D%22rgba(255%2C%20255%2C%20255%2C%200.1)%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M50%20300%20L100%20250%20L150%20300%20L200%20250%20L250%20300%20L300%20250%20L350%20300%20L400%20250%20L450%20300%22%20stroke%3D%22rgba(255%2C%20255%2C%20255%2C%200.1)%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M50%20400%20L100%20350%20L150%20400%20L200%20350%20L250%20400%20L300%20350%20L350%20400%20L400%20350%20L450%20400%22%20stroke%3D%22rgba(255%2C%20255%2C%20255%2C%200.1)%22%20stroke-width%3D%222%22%2F%3E%3C%2Fsvg%3E')] bg-[length:500px_500px]">
         </div>
       </div>
       
@@ -182,7 +182,7 @@ const Auth: React.FC<AuthProps> = ({ isSignUp = false }) => {
                     <a href="/forgot-password" className="text-primary hover:underline">Forgot password?</a>
                   </p>
                 </div>
-                
+{/*                 
                 <div className="mt-6">
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
@@ -201,7 +201,7 @@ const Auth: React.FC<AuthProps> = ({ isSignUp = false }) => {
                       Sign in with Apple
                     </button>
                   </div>
-                </div>
+                </div> */}
               </form>
             ) : (
               <form onSubmit={handleSignupSubmit} className="space-y-6">
@@ -337,7 +337,7 @@ const Auth: React.FC<AuthProps> = ({ isSignUp = false }) => {
                 >
                   {isLoading ? 'Creating Account...' : 'Create Account'}
                 </button>
-                
+{/*                 
                 <div className="mt-6">
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
@@ -356,7 +356,7 @@ const Auth: React.FC<AuthProps> = ({ isSignUp = false }) => {
                       Sign up with Apple
                     </button>
                   </div>
-                </div>
+                </div> */}
                 
                 <p className="text-sm text-center text-gray-600 mt-4">
                   By signing up, you agree to our <a href="/terms" className="text-primary hover:underline">Terms of Service</a> and <a href="/privacy" className="text-primary hover:underline">Privacy Policy</a>.
