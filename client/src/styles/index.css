@@ -1,0 +1,23 @@
+/* Import Poppins font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+  }
+
+  /* Keep the CSS variables for compatibility */
+  :root {
+    --primary-color: #8a55d7;
+    --primary-light: #b088e7;
+    --primary-dark: #6a35b7;
+    --white: #ffffff;
+    --light-gray: #f5f5f5;
+    --dark-gray: #333333;
+    --error: #e53935;
+  }
+}
