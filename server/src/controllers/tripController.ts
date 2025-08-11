@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { Trip, User } from '../models';
+import { Trip, User, TripStop, TripActivity, City, Activity } from '../models';
 import { AuthenticatedRequest, TripWithDetails } from '../types/trip';
 import { TripUtils } from '../utils/tripUtils';
 
@@ -194,6 +194,419 @@ export class TripController {
       console.error('Error fetching trip details:', error);
       res.status(500).json({ 
         error: 'Failed to fetch trip details',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Create a new trip
+   */
+  static async createTrip(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+      }
+
+      const { name, description, start_date, end_date, cover_photo, is_public = true } = req.body;
+
+      // Validate required fields
+      if (!name || !start_date || !end_date) {
+        res.status(400).json({ error: 'Name, start_date, and end_date are required' });
+        return;
+      }
+
+      // Validate dates
+      const startDate = new Date(start_date);
+      const endDate = new Date(end_date);
+      
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        res.status(400).json({ error: 'Invalid date format' });
+        return;
+      }
+
+      if (startDate >= endDate) {
+        res.status(400).json({ error: 'End date must be after start date' });
+        return;
+      }
+
+      // Create trip
+      const trip = await Trip.create({
+        user_id: userId,
+        name,
+        description,
+        start_date: startDate,
+        end_date: endDate,
+        cover_photo,
+        is_public
+      });
+
+      res.status(201).json({
+        success: true,
+        data: trip
+      });
+    } catch (error) {
+      console.error('Error creating trip:', error);
+      res.status(500).json({ 
+        error: 'Failed to create trip',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Add a stop to a trip
+   */
+  static async addTripStop(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const { tripId } = req.params;
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+      }
+
+      const { city_id, start_date, end_date, order_index } = req.body;
+
+      // Validate required fields
+      if (!city_id || !start_date || !end_date) {
+        res.status(400).json({ error: 'city_id, start_date, and end_date are required' });
+        return;
+      }
+
+      // Check if trip exists and user owns it
+      const trip = await Trip.findOne({
+        where: { id: tripId, user_id: userId }
+      });
+
+      if (!trip) {
+        res.status(404).json({ error: 'Trip not found or access denied' });
+        return;
+      }
+
+      // Check if city exists
+      const city = await City.findByPk(city_id);
+      if (!city) {
+        res.status(404).json({ error: 'City not found' });
+        return;
+      }
+
+      // Validate dates
+      const startDate = new Date(start_date);
+      const endDate = new Date(end_date);
+      
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        res.status(400).json({ error: 'Invalid date format' });
+        return;
+      }
+
+      if (startDate >= endDate) {
+        res.status(400).json({ error: 'End date must be after start date' });
+        return;
+      }
+
+      // Check if dates are within trip bounds
+      if (startDate < trip.start_date || endDate > trip.end_date) {
+        res.status(400).json({ error: 'Stop dates must be within trip dates' });
+        return;
+      }
+
+      // Get next order index if not provided
+      const finalOrderIndex = order_index !== undefined 
+        ? order_index 
+        : (await TripStop.getMaxOrderIndexForTrip(tripId)) + 1;
+
+      // Create trip stop
+      const tripStop = await TripStop.create({
+        trip_id: tripId,
+        city_id,
+        start_date: startDate,
+        end_date: endDate,
+        order_index: finalOrderIndex
+      });
+
+      res.status(201).json({
+        success: true,
+        data: tripStop
+      });
+    } catch (error) {
+      console.error('Error adding trip stop:', error);
+      res.status(500).json({ 
+        error: 'Failed to add trip stop',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Remove a stop from a trip
+   */
+  static async removeTripStop(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const { tripId, stopId } = req.params;
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+      }
+
+      // Check if trip exists and user owns it
+      const trip = await Trip.findOne({
+        where: { id: tripId, user_id: userId }
+      });
+
+      if (!trip) {
+        res.status(404).json({ error: 'Trip not found or access denied' });
+        return;
+      }
+
+      // Find and delete the trip stop
+      const tripStop = await TripStop.findOne({
+        where: { id: stopId, trip_id: tripId }
+      });
+
+      if (!tripStop) {
+        res.status(404).json({ error: 'Trip stop not found' });
+        return;
+      }
+
+      // Delete associated activities first
+      await TripActivity.destroy({
+        where: { trip_stop_id: stopId }
+      });
+
+      // Delete the trip stop
+      await tripStop.destroy();
+
+      res.status(200).json({
+        success: true,
+        message: 'Trip stop removed successfully'
+      });
+    } catch (error) {
+      console.error('Error removing trip stop:', error);
+      res.status(500).json({ 
+        error: 'Failed to remove trip stop',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Add an activity to a trip stop
+   */
+  static async addTripActivity(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const { tripId, stopId } = req.params;
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+      }
+
+      const { activity_id, date, time, min_cost_override, max_cost_override } = req.body;
+
+      // Validate required fields
+      if (!activity_id || !date) {
+        res.status(400).json({ error: 'activity_id and date are required' });
+        return;
+      }
+
+      // Check if trip exists and user owns it
+      const trip = await Trip.findOne({
+        where: { id: tripId, user_id: userId }
+      });
+
+      if (!trip) {
+        res.status(404).json({ error: 'Trip not found or access denied' });
+        return;
+      }
+
+      // Check if trip stop exists and belongs to the trip
+      const tripStop = await TripStop.findOne({
+        where: { id: stopId, trip_id: tripId }
+      });
+
+      if (!tripStop) {
+        res.status(404).json({ error: 'Trip stop not found' });
+        return;
+      }
+
+      // Check if activity exists
+      const activity = await Activity.findByPk(activity_id);
+      if (!activity) {
+        res.status(404).json({ error: 'Activity not found' });
+        return;
+      }
+
+      // Validate date
+      const activityDate = new Date(date);
+      if (isNaN(activityDate.getTime())) {
+        res.status(400).json({ error: 'Invalid date format' });
+        return;
+      }
+
+      // Check if date is within trip stop bounds
+      if (activityDate < tripStop.start_date || activityDate > tripStop.end_date) {
+        res.status(400).json({ error: 'Activity date must be within trip stop dates' });
+        return;
+      }
+
+      // Create trip activity
+      const tripActivity = await TripActivity.create({
+        trip_stop_id: stopId,
+        activity_id,
+        date: activityDate,
+        time,
+        min_cost_override,
+        max_cost_override
+      });
+
+      res.status(201).json({
+        success: true,
+        data: tripActivity
+      });
+    } catch (error) {
+      console.error('Error adding trip activity:', error);
+      res.status(500).json({ 
+        error: 'Failed to add trip activity',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Remove an activity from a trip stop
+   */
+  static async removeTripActivity(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const { tripId, stopId, activityId } = req.params;
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+      }
+
+      // Check if trip exists and user owns it
+      const trip = await Trip.findOne({
+        where: { id: tripId, user_id: userId }
+      });
+
+      if (!trip) {
+        res.status(404).json({ error: 'Trip not found or access denied' });
+        return;
+      }
+
+      // Check if trip stop exists and belongs to the trip
+      const tripStop = await TripStop.findOne({
+        where: { id: stopId, trip_id: tripId }
+      });
+
+      if (!tripStop) {
+        res.status(404).json({ error: 'Trip stop not found' });
+        return;
+      }
+
+      // Find and delete the trip activity
+      const tripActivity = await TripActivity.findOne({
+        where: { id: activityId, trip_stop_id: stopId }
+      });
+
+      if (!tripActivity) {
+        res.status(404).json({ error: 'Trip activity not found' });
+        return;
+      }
+
+      await tripActivity.destroy();
+
+      res.status(200).json({
+        success: true,
+        message: 'Trip activity removed successfully'
+      });
+    } catch (error) {
+      console.error('Error removing trip activity:', error);
+      res.status(500).json({ 
+        error: 'Failed to remove trip activity',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Get suggested places for a trip (placeholder - returns empty array as requested)
+   */
+  static async getSuggestedPlaces(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const { tripId } = req.params;
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+      }
+
+      // Check if trip exists and user has access
+      const trip = await Trip.findByIdWithDetails(tripId, userId);
+
+      if (!trip) {
+        res.status(404).json({ error: 'Trip not found or access denied' });
+        return;
+      }
+
+      // Return empty array as requested
+      res.status(200).json({
+        success: true,
+        data: {
+          suggestions: []
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching suggested places:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch suggested places',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Get suggested activities for a trip (placeholder - returns empty array as requested)
+   */
+  static async getSuggestedActivities(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const { tripId } = req.params;
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        res.status(401).json({ error: 'User not authenticated' });
+        return;
+      }
+
+      // Check if trip exists and user has access
+      const trip = await Trip.findByIdWithDetails(tripId, userId);
+
+      if (!trip) {
+        res.status(404).json({ error: 'Trip not found or access denied' });
+        return;
+      }
+
+      // Return empty array as requested
+      res.status(200).json({
+        success: true,
+        data: {
+          suggestions: []
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching suggested activities:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch suggested activities',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
