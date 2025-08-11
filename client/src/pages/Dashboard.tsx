@@ -40,7 +40,8 @@ const Dashboard: React.FC = () => {
         
         setRegions(regionsRes.data || []);
         console.log('Fetched regions:', regionsRes.data);
-        setPreviousTrips(previousTripsRes.data || []);
+        setPreviousTrips(previousTripsRes.data.trips || []);
+        console.log('Fetched previous trips:', previousTripsRes);
         setUpcomingTrips(upcomingTripsRes.data || []);
       } catch (err) {
         setError('Failed to load data. Please try again later.');
@@ -130,14 +131,14 @@ const Dashboard: React.FC = () => {
         ) : (
           <>
             {/* Top Regional Selections */}
-            <section className="mb-10">
+            {/* <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-semibold text-gray-800">Top Regional Selections</h2>
                 <Button variant="link">View all</Button>
               </div>
               
               
-            </section>
+            </section> */}
 
             {/* Previous Trips */}
             {previousTrips.length > 0 && (
@@ -194,13 +195,12 @@ const Dashboard: React.FC = () => {
       </main>
 
       {/* Floating Action Button */}
-      <div className="fixed bottom-8 right-8">
+      <div className="fixed bottom-8 right-8 h-14">
         <Button 
           onClick={handleCreateTrip}
-          size="lg" 
-          className="rounded-full h-14 w-14 shadow-lg"
+          className="rounded-full h-14 w-auto shadow-lg"
         >
-          <Plus className="h-6 w-6" />
+          <Plus className="h-6 w-6" /> Plan A Trip
         </Button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import { Op } from 'sequelize';
 import { Trip, User, TripStop, TripActivity, City, Activity } from '../models';
 import { AuthenticatedRequest, TripWithDetails } from '../types/trip';
 import { TripUtils } from '../utils/tripUtils';
@@ -576,11 +577,12 @@ export class TripController {
   }
 
   /**
-   * Get suggested activities for a trip (placeholder - returns empty array as requested)
+   * Get suggested activities for a trip by city
    */
   static async getSuggestedActivities(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { tripId } = req.params;
+      const { city_id, category, min_cost, max_cost, limit = 20 } = req.query;
       const userId = req.user?.userId;
       
       if (!userId) {
@@ -596,11 +598,74 @@ export class TripController {
         return;
       }
 
-      // Return empty array as requested
+      // city_id is required
+      if (!city_id) {
+        res.status(400).json({ error: 'city_id query parameter is required' });
+        return;
+      }
+
+      // Verify city exists
+      const city = await City.findByPk(city_id as string);
+      if (!city) {
+        res.status(404).json({ error: 'City not found' });
+        return;
+      }
+
+      // Build query conditions
+      let whereClause: any = { city_id: city_id as string };
+      
+      // Add category filter if provided
+      if (category) {
+        whereClause.category = category;
+      }
+
+      // Add cost range filter if provided
+      if (min_cost || max_cost) {
+        const minCost = min_cost ? parseFloat(min_cost as string) : 0;
+        const maxCost = max_cost ? parseFloat(max_cost as string) : Number.MAX_SAFE_INTEGER;
+        
+        whereClause = {
+          ...whereClause,
+          [Op.and]: [
+            {
+              [Op.or]: [
+                { min_cost: null },
+                { min_cost: { [Op.lte]: maxCost } }
+              ]
+            },
+            {
+              [Op.or]: [
+                { max_cost: null },
+                { max_cost: { [Op.gte]: minCost } }
+              ]
+            }
+          ]
+        };
+      }
+
+      // Get activities for the specified city
+      const activities = await Activity.findAll({
+        where: whereClause,
+        limit: parseInt(limit as string),
+        order: [['name', 'ASC']],
+      });
+
       res.status(200).json({
         success: true,
         data: {
-          suggestions: []
+          city: {
+            id: city.id,
+            name: city.name,
+            country: city.country
+          },
+          suggestions: activities,
+          filters: {
+            category: category || null,
+            min_cost: min_cost || null,
+            max_cost: max_cost || null,
+            limit: parseInt(limit as string)
+          },
+          total: activities.length
         }
       });
     } catch (error) {
