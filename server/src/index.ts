@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { initDatabase } from './models';
 import authRoutes from './routes/auth';
+import tripRoutes from './routes/trips';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 // Load environment variables
@@ -18,6 +19,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/trips', tripRoutes);
+app.use('/api/trips', tripRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

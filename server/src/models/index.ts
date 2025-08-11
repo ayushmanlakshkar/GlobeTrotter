@@ -81,7 +81,7 @@ const initDatabase = async () => {
     console.log('Model associations initialized.');
     
     // Sync all models
-    await sequelize.sync({ force: true }); // Temporarily set to true to recreate tables with correct types
+    await sequelize.sync({ force: false }); // Temporarily set to true to recreate tables with correct types
     console.log('All models were synchronized successfully.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
