@@ -40,7 +40,8 @@ const Dashboard: React.FC = () => {
         
         setRegions(regionsRes.data || []);
         console.log('Fetched regions:', regionsRes.data);
-        setPreviousTrips(previousTripsRes.data || []);
+        setPreviousTrips(previousTripsRes.data.trips || []);
+        console.log('Fetched previous trips:', previousTripsRes);
         setUpcomingTrips(upcomingTripsRes.data || []);
       } catch (err) {
         setError('Failed to load data. Please try again later.');
@@ -130,14 +131,14 @@ const Dashboard: React.FC = () => {
         ) : (
           <>
             {/* Top Regional Selections */}
-            <section className="mb-10">
+            {/* <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-semibold text-gray-800">Top Regional Selections</h2>
                 <Button variant="link">View all</Button>
               </div>
               
               
-            </section>
+            </section> */}
 
             {/* Previous Trips */}
             {previousTrips.length > 0 && (
