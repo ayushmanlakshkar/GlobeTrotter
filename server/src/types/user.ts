@@ -27,6 +27,7 @@ export interface UserResponse {
   country: string;
   avatar_url?: string;
   additional_info?: string;
+  role: string;
   created_at: Date;
   updated_at: Date;
 }

@@ -30,7 +30,8 @@ export class AuthController {
       // Create user
       const user = await User.create({
         ...userData,
-        password_hash
+        password_hash,
+        role: 'user',
       });
 
       // Generate JWT token
@@ -39,8 +40,8 @@ export class AuthController {
         throw new Error('JWT_SECRET environment variable is not defined');
       }
       const token = jwt.sign(
-        { userId: user.id, email: user.email },
-        jwtSecret,
+        { userId: user.id, email: user.email, role: user.role },
+        jwtSecret as string,
         { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
       );
 
@@ -56,6 +57,7 @@ export class AuthController {
         country: user.country,
         avatar_url: user.avatar_url,
         additional_info: user.additional_info,
+        role: user.role,
         created_at: user.created_at,
         updated_at: user.updated_at
       };
@@ -92,8 +94,8 @@ export class AuthController {
 
       // Generate JWT token
       const token = jwt.sign(
-        { userId: user.id, email: user.email },
-        process.env.JWT_SECRET!,
+        { userId: user.id, email: user.email, role: user.role },
+        process.env.JWT_SECRET as string,
         { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
       );
 
@@ -109,6 +111,7 @@ export class AuthController {
         country: user.country,
         avatar_url: user.avatar_url,
         additional_info: user.additional_info,
+        role: user.role,
         created_at: user.created_at,
         updated_at: user.updated_at
       };
@@ -146,6 +149,7 @@ export class AuthController {
         country: user.country,
         avatar_url: user.avatar_url,
         additional_info: user.additional_info,
+        role: user.role,
         created_at: user.created_at,
         updated_at: user.updated_at
       };

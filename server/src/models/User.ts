@@ -13,6 +13,7 @@ export interface UserAttributes {
   password_hash: string;
   avatar_url?: string;
   additional_info?: string;
+  role: string; // 'user' or 'admin'
   created_at: Date;
   updated_at: Date;
 }
@@ -31,6 +32,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
   public password_hash!: string;
   public avatar_url?: string;
   public additional_info?: string;
+  public role!: string;
   
   public readonly created_at!: Date;
   public readonly updated_at!: Date;
@@ -103,6 +105,11 @@ User.init(
     additional_info: {
       type: DataTypes.TEXT,
       allowNull: true,
+    },
+    role: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+      defaultValue: 'user',
     },
     created_at: {
       type: DataTypes.DATE,
