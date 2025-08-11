@@ -818,7 +818,8 @@ const CreateTrip: React.FC = () => {
           <div className="flex items-center">
             <div className="w-8 h-8 mr-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center" 
                  dangerouslySetInnerHTML={{ __html: logoSvg }} />
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+            onClick={() => navigate('/dashboard')}>
               GlobeTrotter
             </h1>
           </div>
