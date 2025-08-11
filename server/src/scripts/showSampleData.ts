@@ -4,19 +4,77 @@
  */
 
 import sequelize from '../config/database';
-import { User } from '../models/User';
-import { City } from '../models/City';
-import { Trip } from '../models/Trip';
-import { Activity } from '../models/Activity';
-import { TripStop } from '../models/TripStop';
-import { TripActivity } from '../models/TripActivity';
+import { User, City, Trip, Activity, TripStop, TripActivity } from '../models/index';
 
-// Import associations
-import '../models/index';
+// Define associations function (copied from models/index.ts)
+const initializeAssociations = () => {
+  // User has many Trips
+  User.hasMany(Trip, {
+    foreignKey: 'user_id',
+    as: 'trips'
+  });
+  Trip.belongsTo(User, {
+    foreignKey: 'user_id',
+    as: 'user'
+  });
+
+  // Trip has many TripStops
+  Trip.hasMany(TripStop, {
+    foreignKey: 'trip_id',
+    as: 'tripStops'
+  });
+  TripStop.belongsTo(Trip, {
+    foreignKey: 'trip_id',
+    as: 'trip'
+  });
+
+  // City has many TripStops
+  City.hasMany(TripStop, {
+    foreignKey: 'city_id',
+    as: 'tripStops'
+  });
+  TripStop.belongsTo(City, {
+    foreignKey: 'city_id',
+    as: 'city'
+  });
+
+  // City has many Activities
+  City.hasMany(Activity, {
+    foreignKey: 'city_id',
+    as: 'activities'
+  });
+  Activity.belongsTo(City, {
+    foreignKey: 'city_id',
+    as: 'city'
+  });
+
+  // TripStop has many TripActivities
+  TripStop.hasMany(TripActivity, {
+    foreignKey: 'trip_stop_id',
+    as: 'tripActivities'
+  });
+  TripActivity.belongsTo(TripStop, {
+    foreignKey: 'trip_stop_id',
+    as: 'tripStop'
+  });
+
+  // Activity has many TripActivities
+  Activity.hasMany(TripActivity, {
+    foreignKey: 'activity_id',
+    as: 'tripActivities'
+  });
+  TripActivity.belongsTo(Activity, {
+    foreignKey: 'activity_id',
+    as: 'activity'
+  });
+};
 
 async function demonstrateSeededData() {
   try {
     await sequelize.authenticate();
+    
+    // Initialize associations before using them
+    initializeAssociations();
     console.log('📊 GlobeTrotter Database Sample Data Overview\n');
 
     // Show users
@@ -121,7 +179,11 @@ async function demonstrateSeededData() {
           console.log(`   Activities:`);
           activities.forEach((tripActivity: any) => {
             const activity = tripActivity.activity;
-            console.log(`     • ${activity.name} (${activity.category}) - ${tripActivity.date.toDateString()} ${tripActivity.time || ''}`);
+            // Ensure date is a Date object before calling toDateString
+            const activityDate = tripActivity.date instanceof Date 
+              ? tripActivity.date 
+              : new Date(tripActivity.date);
+            console.log(`     • ${activity.name} (${activity.category}) - ${activityDate.toDateString()} ${tripActivity.time || ''}`);
           });
         }
         console.log();
