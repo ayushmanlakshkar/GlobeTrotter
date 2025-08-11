@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import logoSvg from '../assets/logo';
+import Layout from '../components/Layout';
 import travelPattern from '../assets/travel-pattern';
 
 const Landing: React.FC = () => {
@@ -11,7 +11,7 @@ const Landing: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white relative overflow-hidden">
+    <Layout headerVariant="landing" className="flex flex-col bg-white relative overflow-hidden">
       {/* Background element for top half only */}
       <div 
         className="absolute top-0 left-0 w-full h-5/6 z-0"
@@ -23,27 +23,6 @@ const Landing: React.FC = () => {
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-white/70 to-white"></div>
-      </div>
-      
-      <div className="flex justify-between items-center px-6 md:px-16 py-5 z-20 relative">
-        <div className="flex items-center">
-          <div className="w-10 h-10 mr-3" dangerouslySetInnerHTML={{ __html: logoSvg }} />
-          <h1 className="text-2xl font-bold text-primary">GlobeTrotter</h1>
-        </div>
-        <div className="flex gap-4">
-          <button 
-            className="font-semibold text-primary hover:underline" 
-            onClick={() => navigate('/login')}
-          >
-            Login
-          </button>
-          <button 
-            className="px-5 py-2.5 rounded-full font-semibold bg-primary text-white hover:bg-primary-dark transition-colors" 
-            onClick={() => navigate('/signup')}
-          >
-            Sign up free
-          </button>
-        </div>
       </div>
 
       <div className="flex-1 flex flex-col justify-center items-center px-5 py-10 z-20 relative">
@@ -97,7 +76,7 @@ const Landing: React.FC = () => {
       <div className="absolute bottom-0 left-0 w-full z-10 opacity-30">
         <div className="w-full" dangerouslySetInnerHTML={{ __html: travelPattern }} />
       </div>
-    </div>
+    </Layout>
   );
 };
 

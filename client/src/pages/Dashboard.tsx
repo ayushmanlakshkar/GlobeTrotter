@@ -5,7 +5,6 @@ import { Button } from '../components/ui/button';
 import { SearchBar } from '../components/ui/search-bar';
 import TripCard from '../components/TripCard';
 import RegionalCard from '../components/RegionalCard';
-import logoSvg from '../assets/logo';
 import authService from '../services/auth.service';
 import tripService, { Trip, RegionalSelection } from '../services/trip.service';
 
@@ -18,7 +17,6 @@ const Dashboard: React.FC = () => {
   const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [groupBy, setGroupBy] = useState('date');
-  const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
   useEffect(() => {
     // Check if user is logged in
@@ -27,8 +25,6 @@ const Dashboard: React.FC = () => {
       navigate('/login');
       return;
     }
-
-    setCurrentUser(user);
 
     const fetchData = async () => {
       try {
@@ -57,11 +53,6 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, [navigate]);
 
-  const handleLogout = () => {
-    authService.logout();
-    navigate('/login');
-  };
-
   const handleCreateTrip = () => {
     navigate('/trips/create');
   };
@@ -75,45 +66,9 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 animate-fade-in">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="w-10 h-10 mr-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center" dangerouslySetInnerHTML={{ __html: logoSvg }} />
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">GlobeTrotter</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/search')}
-              className="text-blue-600 border-blue-600 hover:bg-blue-50"
-            >
-              Search
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/calendar')}
-              className="text-blue-600 border-blue-600 hover:bg-blue-50"
-            >
-              Calendar
-            </Button>
-            {currentUser?.user?.role === 'admin' && (
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/admin')}
-                className="text-purple-600 border-purple-600 hover:bg-purple-50"
-              >
-                Admin Panel
-              </Button>
-            )}
-            <Button variant="ghost" onClick={handleLogout} className="text-gray-600 hover:text-gray-900">Logout</Button>
-          </div>
-        </div>
-      </header>
-
+    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 animate-fade-in">
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-6 py-8">
         {/* Hero Banner */}
         <div className="relative h-80 rounded-3xl mb-12 overflow-hidden shadow-2xl">
           <div 
@@ -295,7 +250,7 @@ const Dashboard: React.FC = () => {
             )}
           </div>
         )}
-      </main>
+      </div>
 
       {/* Floating Action Button */}
       <div className="fixed bottom-8 right-8 z-50">

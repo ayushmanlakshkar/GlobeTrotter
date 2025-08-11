@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Calendar, Clock, DollarSign, Star, Check } from 'lucide-react';
+import { MapPin, Calendar, Clock, DollarSign, Star, Check } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import logoSvg from '../assets/logo';
 
 interface TripStop {
   id: string;
@@ -165,30 +164,9 @@ const AddActivities: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="w-10 h-10 mr-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center" 
-                 dangerouslySetInnerHTML={{ __html: logoSvg }} />
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              GlobeTrotter
-            </h1>
-          </div>
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/dashboard')}
-            className="text-gray-600 hover:text-gray-900"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Button>
-        </div>
-      </header>
-
+    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-6 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12 animate-fade-in">
           <h2 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
@@ -415,7 +393,7 @@ const AddActivities: React.FC = () => {
             </Button>
           </div>
         </form>
-      </main>
+      </div>
     </div>
   );
 };

@@ -10,23 +10,68 @@ import Calendar from './pages/Calendar';
 import CitySearch from './pages/CitySearch';
 import ActivitySearch from './pages/ActivitySearch';
 import CombinedSearch from './pages/CombinedSearch';
+import Layout from './components/Layout';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Auth />} />
-        <Route path="/signup" element={<Auth isSignUp={true} />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/calendar" element={<Calendar />} />
-        <Route path="/search" element={<CombinedSearch />} />
-        <Route path="/cities" element={<CitySearch />} />
-        <Route path="/activities" element={<ActivitySearch />} />
-        <Route path="/trips/create" element={<CreateTrip />} />
-        <Route path="/trips/:id" element={<TripDetails />} />
-        <Route path="/trips/:tripId/activities" element={<AddActivities />} />
+        <Route path="/login" element={
+          <Layout headerVariant="minimal">
+            <Auth />
+          </Layout>
+        } />
+        <Route path="/signup" element={
+          <Layout headerVariant="minimal">
+            <Auth isSignUp={true} />
+          </Layout>
+        } />
+        <Route path="/dashboard" element={
+          <Layout headerVariant="dashboard">
+            <Dashboard />
+          </Layout>
+        } />
+        <Route path="/admin" element={
+          <Layout headerVariant="admin">
+            <AdminDashboard />
+          </Layout>
+        } />
+        <Route path="/calendar" element={
+          <Layout headerVariant="dashboard">
+            <Calendar />
+          </Layout>
+        } />
+        <Route path="/search" element={
+          <Layout headerVariant="dashboard">
+            <CombinedSearch />
+          </Layout>
+        } />
+        <Route path="/cities" element={
+          <Layout headerVariant="dashboard">
+            <CitySearch />
+          </Layout>
+        } />
+        <Route path="/activities" element={
+          <Layout headerVariant="dashboard">
+            <ActivitySearch />
+          </Layout>
+        } />
+        <Route path="/trips/create" element={
+          <Layout headerVariant="dashboard" showBackButton={true} backButtonText="Back to Dashboard">
+            <CreateTrip />
+          </Layout>
+        } />
+        <Route path="/trips/:id" element={
+          <Layout headerVariant="dashboard" showBackButton={true} backButtonText="Back to Dashboard">
+            <TripDetails />
+          </Layout>
+        } />
+        <Route path="/trips/:tripId/activities" element={
+          <Layout headerVariant="dashboard" showBackButton={true} backButtonText="Back to Trip">
+            <AddActivities />
+          </Layout>
+        } />
       </Routes>
     </Router>
   );
