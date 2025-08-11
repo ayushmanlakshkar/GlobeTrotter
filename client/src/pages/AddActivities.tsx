@@ -28,7 +28,8 @@ const AddActivities: React.FC = () => {
   useEffect(() => {
     if (!tripId) return;
     // Fetch trip details to get stops
-    const token = localStorage.getItem('jwt_token');
+    const user = localStorage.getItem('user');
+    const token = user ? JSON.parse(user).token : null;
     axios.get(`http://localhost:3000/api/trips/${tripId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -71,7 +72,8 @@ const AddActivities: React.FC = () => {
     setLoading(true);
     setError('');
     try {
-      const token = localStorage.getItem('jwt_token');
+      const user = localStorage.getItem('user');
+      const token = user ? JSON.parse(user).token : null;
       if (!token) throw new Error('Not authenticated');
       for (const stop of tripStops) {
         const acts = selectedActivities[stop.id] || [];

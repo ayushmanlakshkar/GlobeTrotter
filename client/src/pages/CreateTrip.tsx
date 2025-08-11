@@ -85,7 +85,8 @@ const CreateTrip: React.FC = () => {
     setError('');
     try {
       // TODO: Replace with actual JWT token retrieval
-      const token = localStorage.getItem('jwt_token');
+      const user = localStorage.getItem('user');
+      const token = user ? JSON.parse(user).token : null;
       if (!token) throw new Error('Not authenticated');
       // 1. Create Trip
       const tripRes = await axios.post('http://localhost:3000/api/trips', tripDetails, {
