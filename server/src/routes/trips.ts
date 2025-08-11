@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { TripController } from '../controllers/tripController';
 import { authenticateToken } from '../middleware/auth';
-import { validateCreateTrip, validateAddTripStop, validateAddTripActivity } from '../middleware/validation';
+import { validateCreateTrip, validateAddTripStop, validateAddTripActivity, validateSuggestedActivities } from '../middleware/validation';
 
 const router = Router();
 
@@ -25,8 +25,8 @@ router.delete('/:tripId/stops/:stopId', TripController.removeTripStop);
 router.post('/:tripId/stops/:stopId/activities', validateAddTripActivity, TripController.addTripActivity);
 router.delete('/:tripId/stops/:stopId/activities/:activityId', TripController.removeTripActivity);
 
-// Suggestion endpoints (returning empty arrays as requested)
+// Suggestion endpoints
 router.get('/:tripId/suggested-places', TripController.getSuggestedPlaces);
-router.get('/:tripId/suggested-activities', TripController.getSuggestedActivities);
+router.get('/:tripId/suggested-activities', validateSuggestedActivities, TripController.getSuggestedActivities);
 
 export default router;

@@ -43,6 +43,17 @@ const addTripActivitySchema = Joi.object({
   max_cost_override: Joi.number().min(0).optional()
 });
 
+const suggestedActivitiesSchema = Joi.object({
+  city_id: Joi.string().uuid().required(),
+  category: Joi.string().valid(
+    'sightseeing', 'food', 'adventure', 'shopping', 'entertainment', 
+    'culture', 'nature', 'sports', 'nightlife', 'relaxation'
+  ).optional(),
+  min_cost: Joi.number().min(0).optional(),
+  max_cost: Joi.number().min(0).optional(),
+  limit: Joi.number().integer().min(1).max(100).optional()
+});
+
 export const validateRegister = (req: Request, res: Response, next: NextFunction): void => {
   const { error } = registerSchema.validate(req.body);
   
@@ -101,6 +112,20 @@ export const validateAddTripStop = (req: Request, res: Response, next: NextFunct
 
 export const validateAddTripActivity = (req: Request, res: Response, next: NextFunction): void => {
   const { error } = addTripActivitySchema.validate(req.body);
+  
+  if (error) {
+    res.status(400).json({ 
+      error: 'Validation failed', 
+      details: error.details.map(detail => detail.message)
+    });
+    return;
+  }
+  
+  next();
+};
+
+export const validateSuggestedActivities = (req: Request, res: Response, next: NextFunction): void => {
+  const { error } = suggestedActivitiesSchema.validate(req.query);
   
   if (error) {
     res.status(400).json({ 

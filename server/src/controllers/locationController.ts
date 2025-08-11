@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { City } from '../models/City';
+import { Activity } from '../models/Activity';
 import { Op } from 'sequelize';
 
 export class LocationController {
@@ -308,6 +309,112 @@ export class LocationController {
       console.error('Error fetching city by ID:', error);
       res.status(500).json({ 
         error: 'Failed to fetch city',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
+
+  /**
+   * Get activities for a specific city
+   */
+  static async getCityActivities(req: Request, res: Response): Promise<void> {
+    try {
+      const { cityId } = req.params;
+      const { 
+        category, 
+        min_cost, 
+        max_cost, 
+        limit = 20,
+        sortBy = 'name',
+        sortOrder = 'ASC'
+      } = req.query;
+
+      // Verify city exists
+      const city = await City.findByPk(cityId);
+      if (!city) {
+        res.status(404).json({
+          error: 'City not found'
+        });
+        return;
+      }
+
+      // Build query conditions
+      let whereClause: any = { city_id: cityId };
+      
+      // Add category filter if provided
+      if (category) {
+        whereClause.category = category;
+      }
+
+      // Add cost range filter if provided
+      if (min_cost || max_cost) {
+        const minCost = min_cost ? parseFloat(min_cost as string) : 0;
+        const maxCost = max_cost ? parseFloat(max_cost as string) : Number.MAX_SAFE_INTEGER;
+        
+        whereClause = {
+          ...whereClause,
+          [Op.and]: [
+            {
+              [Op.or]: [
+                { min_cost: null },
+                { min_cost: { [Op.lte]: maxCost } }
+              ]
+            },
+            {
+              [Op.or]: [
+                { max_cost: null },
+                { max_cost: { [Op.gte]: minCost } }
+              ]
+            }
+          ]
+        };
+      }
+
+      // Validate sort parameters
+      const validSortFields = ['name', 'category', 'min_cost', 'max_cost', 'duration', 'created_at'];
+      const validSortOrders = ['ASC', 'DESC'];
+      
+      const finalSortBy = validSortFields.includes(sortBy as string) ? sortBy as string : 'name';
+      const finalSortOrder = validSortOrders.includes((sortOrder as string).toUpperCase()) 
+        ? (sortOrder as string).toUpperCase() 
+        : 'ASC';
+
+      // Get activities for the specified city
+      const activities = await Activity.findAll({
+        where: whereClause,
+        limit: parseInt(limit as string),
+        order: [[finalSortBy, finalSortOrder]],
+        include: [
+          {
+            model: City,
+            as: 'city',
+            attributes: ['id', 'name', 'country']
+          }
+        ]
+      });
+
+      res.status(200).json({
+        success: true,
+        data: {
+          city: {
+            id: city.id,
+            name: city.name,
+            country: city.country
+          },
+          activities,
+          filters: {
+            category: category || null,
+            min_cost: min_cost || null,
+            max_cost: max_cost || null,
+            limit: parseInt(limit as string)
+          },
+          total: activities.length
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching city activities:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch city activities',
         details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
