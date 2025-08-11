@@ -414,10 +414,10 @@ const seedDatabase = async () => {
 
     // Check if data already exists
     const userCount = await User.count();
-    if (userCount > 0) {
-      console.log('Database already contains data. Skipping seeding.');
-      return;
-    }
+    // if (userCount > 0) {
+    //   console.log('Database already contains data. Skipping seeding.');
+    //   return;
+    // }
 
     // Seed data in order due to foreign key constraints
     const users = await seedUsers();
