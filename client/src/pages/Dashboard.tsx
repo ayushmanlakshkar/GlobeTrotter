@@ -86,6 +86,13 @@ const Dashboard: React.FC = () => {
           <div className="flex items-center gap-4">
             <Button 
               variant="outline" 
+              onClick={() => navigate('/search')}
+              className="text-blue-600 border-blue-600 hover:bg-blue-50"
+            >
+              Search
+            </Button>
+            <Button 
+              variant="outline" 
               onClick={() => navigate('/calendar')}
               className="text-blue-600 border-blue-600 hover:bg-blue-50"
             >

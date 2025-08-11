@@ -12,6 +12,10 @@ router.get('/cities/popular', LocationController.getPopularCities);
 router.get('/cities/:cityId', LocationController.getCityById);
 router.get('/cities/:cityId/activities', LocationController.getCityActivities);
 
+// Activities
+router.get('/activities', LocationController.getActivities);
+router.get('/activities/search', LocationController.searchActivities);
+
 // Cities by country
 router.get('/countries/:country/cities', LocationController.getCitiesByCountry);
 
