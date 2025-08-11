@@ -78,5 +78,4 @@ export const addTripActivity = (tripId: string, stopId: string, activity: any, t
   axios.post(`${API_URL}/trips/${tripId}/stops/${stopId}/activities`, activity, {
     headers: { Authorization: `Bearer ${token}` },
   });
-
-// Add more as needed for activities, etc.
+export default tripService;
