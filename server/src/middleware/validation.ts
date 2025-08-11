@@ -24,7 +24,7 @@ const createTripSchema = Joi.object({
   description: Joi.string().max(1000).optional(),
   start_date: Joi.date().iso().required(),
   end_date: Joi.date().iso().greater(Joi.ref('start_date')).required(),
-  cover_photo: Joi.string().uri().optional(),
+  cover_photo: Joi.string().uri().allow('').optional(),
   is_public: Joi.boolean().optional()
 });
 
