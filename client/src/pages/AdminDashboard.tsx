@@ -142,63 +142,12 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  // Handle logout
-  const handleLogout = () => {
-    authService.logout();
-    navigate('/');
-  };
-
   if (!currentUser || currentUser.user?.role !== 'admin') {
     return null; // Will redirect in useEffect
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-white/20 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center mr-3">
-                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                  Admin Dashboard
-                </h1>
-                <div className="flex items-center mt-1">
-                  <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-                  <span className="text-xs text-gray-600">Live Analytics</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3 bg-gradient-to-r from-purple-100 to-blue-100 rounded-xl px-4 py-2">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">
-                    {currentUser.user.first_name.charAt(0)}
-                  </span>
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-900">
-                    {currentUser.user.first_name} {currentUser.user.last_name}
-                  </div>
-                  <div className="text-xs text-gray-600">Admin</div>
-                </div>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors px-3 py-2 rounded-lg hover:bg-gray-100"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <div className="bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       {/* Navigation Tabs */}
       <div className="bg-white/60 backdrop-blur-sm border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -551,7 +500,7 @@ const AdminDashboard: React.FC = () => {
                 <div className="p-6">
                   {popularCities.length > 0 ? (
                     <div className="space-y-4">
-                      {popularCities.slice(0, 6).map((city, index) => {
+                      {popularCities.slice(0, 6).map((city) => {
                         const percentage = popularCities.length > 0 
                           ? (parseInt(city.tripCount) / popularCities.reduce((sum, c) => sum + parseInt(c.tripCount), 0)) * 100 
                           : 0;
