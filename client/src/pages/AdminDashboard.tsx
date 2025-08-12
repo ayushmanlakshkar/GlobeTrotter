@@ -400,6 +400,7 @@ const AdminDashboard: React.FC = () => {
               onEditUser={handleEditUser}
               onDeleteUser={handleDeleteUser}
               loading={loading}
+              currentUserId={currentUser?.user?.id}
             />
           </div>
         )}
