@@ -312,7 +312,7 @@ const Auth: React.FC<AuthProps> = ({ isSignUp = false }) => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
                   <input

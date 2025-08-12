@@ -19,7 +19,7 @@ const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [groupBy, setGroupBy] = useState('date');
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
-
+  
   useEffect(() => {
     // Check if user is logged in
     const user = authService.getCurrentUser();

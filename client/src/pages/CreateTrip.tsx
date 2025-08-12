@@ -284,8 +284,15 @@ const CreateTrip: React.FC = () => {
       for (const selectedActivity of selectedActivities) {
         const tripStop = tripStops.find(stop => stop.city.id === selectedActivity.activity.city_id);
         if (tripStop) {
-          // Find the created trip stop ID (would need to be returned from the API)
-          // For now, we'll skip this step as it requires API changes
+          console.log(`Adding activity ${selectedActivity} to trip stop in ${tripStop}`);
+          await axios.post(`http://localhost:3000/api/trips/${tripId}/activities`, {
+            activity_id: selectedActivity.activity.id,
+            date: selectedActivity.date,
+            time: selectedActivity.time,
+            cost_override: selectedActivity.cost_override || null,
+          }, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
         }
       }
 
@@ -811,31 +818,9 @@ const CreateTrip: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-white/20 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="w-8 h-8 mr-3 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center" 
-                 dangerouslySetInnerHTML={{ __html: logoSvg }} />
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
-            onClick={() => navigate('/dashboard')}>
-              GlobeTrotter
-            </h1>
-          </div>
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/dashboard')}
-            className="text-gray-600 hover:text-gray-900 text-sm"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Button>
-        </div>
-      </header>
-
+    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-6">
+      <div className="container mx-auto px-6 py-6">
         {/* Step Indicator */}
         <StepIndicator 
           steps={steps} 
@@ -893,7 +878,7 @@ const CreateTrip: React.FC = () => {
             </Button>
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 };
