@@ -29,6 +29,26 @@ const Auth: React.FC<AuthProps> = ({ isSignUp = false }) => {
   const [signupError, setSignupError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
+  // Password validation function
+  const validatePassword = (password: string): string | null => {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/[a-z]/.test(password)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/[0-9]/.test(password)) {
+      return 'Password must contain at least one number';
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return 'Password must contain at least one special character';
+    }
+    return null;
+  };
+  
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError('');
@@ -56,6 +76,13 @@ const Auth: React.FC<AuthProps> = ({ isSignUp = false }) => {
     // Basic validations
     if (!firstName || !lastName || !username || !email || !phoneNumber || !city || !country || !password) {
       setSignupError('Please fill in all required fields');
+      return;
+    }
+    
+    // Password validation
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setSignupError(passwordError);
       return;
     }
     
@@ -311,6 +338,16 @@ const Auth: React.FC<AuthProps> = ({ isSignUp = false }) => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
                     required
                   />
+                  <div className="mt-1 text-xs text-gray-600">
+                    <p>Password must contain:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>At least 8 characters</li>
+                      <li>One uppercase letter (A-Z)</li>
+                      <li>One lowercase letter (a-z)</li>
+                      <li>One number (0-9)</li>
+                      <li>One special character (!@#$%^&*)</li>
+                    </ul>
+                  </div>
                 </div>
                 
                 <div>

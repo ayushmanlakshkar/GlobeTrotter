@@ -267,10 +267,11 @@ const CreateTrip: React.FC = () => {
       });
       const tripId = tripRes.data.data.id;
 
-      // 2. Add Trip Stops
+      // 2. Add Trip Stops and collect stop IDs
+      const createdStops: { [cityId: string]: string } = {};
       for (let i = 0; i < tripStops.length; i++) {
         const stop = tripStops[i];
-        await axios.post(`http://localhost:3000/api/trips/${tripId}/stops`, {
+        const stopResponse = await axios.post(`http://localhost:3000/api/trips/${tripId}/stops`, {
           city_id: stop.city.id,
           start_date: stop.start_date,
           end_date: stop.end_date,
@@ -278,14 +279,22 @@ const CreateTrip: React.FC = () => {
         }, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        // Store the created stop ID mapped to the city ID
+        createdStops[stop.city.id] = stopResponse.data.data.id;
       }
 
       // 3. Add selected activities (if any)
       for (const selectedActivity of selectedActivities) {
-        const tripStop = tripStops.find(stop => stop.city.id === selectedActivity.activity.city_id);
-        if (tripStop) {
-          // Find the created trip stop ID (would need to be returned from the API)
-          // For now, we'll skip this step as it requires API changes
+        const stopId = createdStops[selectedActivity.activity.city_id];
+        if (stopId) {
+          await axios.post(`http://localhost:3000/api/trips/${tripId}/stops/${stopId}/activities`, {
+            activity_id: selectedActivity.activity.id,
+            date: selectedActivity.date,
+            time: selectedActivity.time,
+            cost_override: selectedActivity.cost_override
+          }, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
         }
       }
 
