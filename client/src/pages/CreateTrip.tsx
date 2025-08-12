@@ -284,8 +284,15 @@ const CreateTrip: React.FC = () => {
       for (const selectedActivity of selectedActivities) {
         const tripStop = tripStops.find(stop => stop.city.id === selectedActivity.activity.city_id);
         if (tripStop) {
-          // Find the created trip stop ID (would need to be returned from the API)
-          // For now, we'll skip this step as it requires API changes
+          console.log(`Adding activity ${selectedActivity} to trip stop in ${tripStop}`);
+          await axios.post(`http://localhost:3000/api/trips/${tripId}/activities`, {
+            activity_id: selectedActivity.activity.id,
+            date: selectedActivity.date,
+            time: selectedActivity.time,
+            cost_override: selectedActivity.cost_override || null,
+          }, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
         }
       }
 

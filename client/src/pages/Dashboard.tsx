@@ -17,7 +17,7 @@ const Dashboard: React.FC = () => {
   const [upcomingTrips, setUpcomingTrips] = useState<Trip[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [groupBy, setGroupBy] = useState('date');
-
+  
   useEffect(() => {
     // Check if user is logged in
     const user = authService.getCurrentUser();
