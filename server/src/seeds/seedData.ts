@@ -119,7 +119,7 @@ const seedCities = async () => {
       cost_index: 85,
       popularity: 95,
       description: 'The City of Light, known for its art, fashion, gastronomy and culture.',
-      image_url: 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=800'
+      image_url: 'https://backpacksandbubbly.com/wp-content/uploads/2022/11/IMG_1556-3000x2000.jpg'
     },
     {
       name: 'Tokyo',
@@ -143,7 +143,7 @@ const seedCities = async () => {
       cost_index: 70,
       popularity: 87,
       description: 'Known for its architecture, beaches, and vibrant nightlife.',
-      image_url: 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=800'
+      image_url: 'https://statemag.state.gov/wp-content/uploads/2024/05/0624POM-A-3-scaled.jpg'
     },
     {
       name: 'Bangkok',
@@ -151,7 +151,7 @@ const seedCities = async () => {
       cost_index: 45,
       popularity: 85,
       description: 'A vibrant city known for ornate shrines, street food, and bustling markets.',
-      image_url: 'https://images.unsplash.com/photo-1563492065910-1e4ec48792f3?w=800'
+      image_url: 'https://media.istockphoto.com/id/1477016740/photo/wat-arun-temple-bangkok-during-sunset-in-thailand.jpg?s=612x612&w=0&k=20&c=5lcKk51cPycXKYpxRUFBXSK7nJr0MbUcuoLrCyrmwp0='
     },
     {
       name: 'Rome',
@@ -228,7 +228,7 @@ const seedActivities = async (cities: City[]) => {
       duration: 4,
       min_cost: 15,
       max_cost: 15,
-      image_url: 'https://images.unsplash.com/photo-1566139884914-2a9abb3d1e75?w=400'
+      image_url: 'https://media.cntraveler.com/photos/57d961ce3e6b32bf25f5ad0f/16:9/w_1920,c_limit/most-beautiful-paris-louvre-GettyImages-536267205.jpg'
     },
     // Tokyo activities
     {
@@ -270,7 +270,7 @@ const seedActivities = async (cities: City[]) => {
       duration: 3,
       min_cost: 80,
       max_cost: 200,
-      image_url: 'https://images.unsplash.com/photo-1507246965332-8490533b5036?w=400'
+      image_url: 'https://images.ctfassets.net/1aemqu6a6t65/7itGivzNvJXbB1htnRO86h/058afdf5947c344803214a2f9b0c8146/Aladdin-the-musical-2-Broadway-Manhattan-NYC-Courtesy-Disney.jpg'
     },
     // Barcelona activities
     {
@@ -291,7 +291,7 @@ const seedActivities = async (cities: City[]) => {
       duration: 4,
       min_cost: 5,
       max_cost: 15,
-      image_url: 'https://images.unsplash.com/photo-1471872406091-4d97b2c46814?w=400'
+      image_url: 'https://images.pexels.com/photos/30838752/pexels-photo-30838752.jpeg'
     }
   ];
 

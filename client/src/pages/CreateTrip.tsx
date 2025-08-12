@@ -292,6 +292,7 @@ const CreateTrip: React.FC = () => {
             date: selectedActivity.date,
             time: selectedActivity.time,
             cost_override: selectedActivity.cost_override
+
           }, {
             headers: { Authorization: `Bearer ${token}` },
           });
